@@ -9,8 +9,8 @@ import 'state/app_state.dart';
 import 'widgets/common.dart';
 import 'widgets/toast.dart';
 
-class StocoApp extends StatelessWidget {
-  const StocoApp({super.key});
+class ControleFinanceiroApp extends StatelessWidget {
+  const ControleFinanceiroApp({super.key});
 
   @override
   Widget build(BuildContext context) {

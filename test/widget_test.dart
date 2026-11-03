@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stoco_family/core/format.dart';
+import 'package:controle_financeiro/core/format.dart';
 
 void main() {
   test('parseMoney aceita vírgula e ponto', () {

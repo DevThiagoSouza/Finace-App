@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Gera as pastas nativas (android/ios/web) e prepara o projeto.
 set -e
-flutter create --org com.stoco --project-name stoco_family --platforms=android,ios,web .
+flutter create --org com.stoco --project-name controle_financeiro --platforms=android,ios,web .
 
 # Firebase exige minSdk 23 no Android
 for f in android/app/build.gradle android/app/build.gradle.kts; do

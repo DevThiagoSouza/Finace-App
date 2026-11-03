@@ -33,7 +33,7 @@ Future<void> main() async {
       create: (_) => AppState(FirestoreService(), prefs,
           firebaseAvailable: firebaseAvailable)
         ..init(),
-      child: const StocoApp(),
+      child: const ControleFinanceiroApp(),
     ),
   );
 }

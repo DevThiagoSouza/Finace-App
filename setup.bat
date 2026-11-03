@@ -1,6 +1,6 @@
 @echo off
 REM Gera as pastas nativas (android/ios/web) e prepara o projeto.
-call flutter create --org com.stoco --project-name stoco_family --platforms=android,ios,web .
+call flutter create --org com.stoco --project-name controle_financeiro --platforms=android,ios,web .
 
 REM Firebase exige minSdk 23 no Android
 if exist android\app\build.gradle.kts powershell -Command "(Get-Content android\app\build.gradle.kts) -replace 'flutter\.minSdkVersion','23' | Set-Content android\app\build.gradle.kts"

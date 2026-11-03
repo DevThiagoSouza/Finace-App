@@ -1,6 +1,6 @@
-# Stoco Family — Flutter + Firebase
+# Controle Financeiro — Flutter + Firebase
 
-Versão Flutter do app web **Stoco Family** (gestão financeira individual e a dois),
+Versão Flutter do app web **Controle Financeiro** (gestão financeira individual e a dois),
 com backend em **Firebase** (Firestore em tempo real + Auth anônimo).
 
 ## Passo a passo
