@@ -20,12 +20,16 @@ class _FixedFormState extends State<_FixedForm> {
   final _title = TextEditingController();
   final _amount = TextEditingController();
   late String _payer = context.read<AppState>().activeUser;
+  String _paymentMethod = 'debit';
+  bool _creditInstallment = false;
+  final _installments = TextEditingController(text: '1');
   String? _error;
 
   @override
   void dispose() {
     _title.dispose();
     _amount.dispose();
+    _installments.dispose();
     super.dispose();
   }
 
@@ -35,7 +39,18 @@ class _FixedFormState extends State<_FixedForm> {
       setState(() => _error = 'Preencha o nome e um valor maior que zero.');
       return;
     }
-    context.read<AppState>().addFixed(_title.text.trim(), amount, _payer);
+    final installments = _creditInstallment ? int.tryParse(_installments.text.trim()) ?? 1 : 1;
+    if (_paymentMethod == 'credit' && (installments < 1 || installments > 120)) {
+      setState(() => _error = 'Informe entre 1 e 120 parcelas.');
+      return;
+    }
+    context.read<AppState>().addFixed(
+          _title.text.trim(),
+          amount,
+          _payer,
+          _paymentMethod,
+          installments,
+        );
     Navigator.of(context).pop();
   }
 
@@ -63,6 +78,55 @@ class _FixedFormState extends State<_FixedForm> {
         style: ts(14, w: FontWeight.w700, c: p.text),
         decoration: inputDeco(context, hint: '0,00'),
       ),
+      const SizedBox(height: 12),
+      const FieldLabel('Forma de pagamento'),
+      DropdownButtonFormField<String>(
+        value: _paymentMethod,
+        decoration: inputDeco(context),
+        dropdownColor: p.surface,
+        items: const [
+          DropdownMenuItem(value: 'debit', child: Text('Débito')),
+          DropdownMenuItem(value: 'pix', child: Text('Pix')),
+          DropdownMenuItem(value: 'credit', child: Text('Cartão de crédito')),
+          DropdownMenuItem(value: 'cash', child: Text('Dinheiro')),
+        ],
+        onChanged: (v) => setState(() => _paymentMethod = v ?? 'debit'),
+      ),
+      if (_paymentMethod == 'credit') ...[
+        const SizedBox(height: 12),
+        const FieldLabel('Pagamento no crédito'),
+        Row(children: [
+          Expanded(
+            child: RadioListTile<bool>(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text('À vista', style: ts(11, c: p.text)),
+              value: false,
+              groupValue: _creditInstallment,
+              onChanged: (v) => setState(() => _creditInstallment = v ?? false),
+            ),
+          ),
+          Expanded(
+            child: RadioListTile<bool>(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text('Parcelado', style: ts(11, c: p.text)),
+              value: true,
+              groupValue: _creditInstallment,
+              onChanged: (v) => setState(() => _creditInstallment = v ?? true),
+            ),
+          ),
+        ]),
+        if (_creditInstallment) ...[
+          const FieldLabel('Quantidade de parcelas'),
+          TextField(
+            controller: _installments,
+            keyboardType: TextInputType.number,
+            style: ts(12, w: FontWeight.w700, c: p.text),
+            decoration: inputDeco(context, hint: '1'),
+          ),
+        ],
+      ],
       const SizedBox(height: 12),
       const FieldLabel('Responsável pelo Pagamento'),
       Container(

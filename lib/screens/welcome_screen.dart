@@ -30,7 +30,7 @@ class WelcomeScreen extends StatelessWidget {
                   child: const Icon(Icons.home_work_rounded, size: 34, color: Colors.white),
                 ),
                 const SizedBox(height: 24),
-                Text('Stoco Family', style: ts(26, w: FontWeight.w800, c: p.strong, ls: -.5)),
+                Text('Controle Financeiro', style: ts(26, w: FontWeight.w800, c: p.strong, ls: -.5)),
                 const SizedBox(height: 8),
                 Text('Gestão financeira individual e a dois.\nCrie o espaço da sua família ou conecte-se com um código.',
                     textAlign: TextAlign.center, style: ts(13, c: p.muted, h: 1.5)),

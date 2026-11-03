@@ -15,8 +15,9 @@ class StocoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = context.select<AppState, bool>((s) => s.isDark);
+    final appName = context.select<AppState, String>((s) => s.house?.name ?? 'Controle Financeiro');
     return MaterialApp(
-      title: 'Stoco Family',
+      title: appName,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       theme: buildTheme(false),

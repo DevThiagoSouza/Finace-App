@@ -14,9 +14,15 @@ Future<void> main() async {
   await initializeDateFormatting('pt_BR');
   var firebaseAvailable = true;
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform)
+        .timeout(
+      const Duration(seconds: 30),
+    );
   } catch (_) {
-    firebaseAvailable = false;
+    // O Firebase pode terminar a inicialização depois do limite de abertura.
+    // O AppState tenta autenticar novamente quando a internet estiver disponível.
+    firebaseAvailable = true;
   }
 
   final prefs = LocalPrefs();
@@ -24,7 +30,9 @@ Future<void> main() async {
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AppState(FirestoreService(), prefs, firebaseAvailable: firebaseAvailable)..init(),
+      create: (_) => AppState(FirestoreService(), prefs,
+          firebaseAvailable: firebaseAvailable)
+        ..init(),
       child: const StocoApp(),
     ),
   );

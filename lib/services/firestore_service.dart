@@ -23,6 +23,7 @@ class FirestoreService {
   DocumentReference<Json> _house(String code) => _db.collection('households').doc(code);
   CollectionReference<Json> _fixed(String code) => _house(code).collection('fixedExpenses');
   CollectionReference<Json> _txs(String code) => _house(code).collection('transactions');
+  CollectionReference<Json> _notifications(String code) => _house(code).collection('notifications');
 
   Stream<DocumentSnapshot<Json>> watchHouse(String code) =>
       _house(code).snapshots(includeMetadataChanges: true);
@@ -33,30 +34,31 @@ class FirestoreService {
   Stream<QuerySnapshot<Json>> watchTxs(String code) =>
       _txs(code).snapshots(includeMetadataChanges: true);
 
+  Stream<QuerySnapshot<Json>> watchNotifications(String code) => _notifications(code)
+      .orderBy('createdAt', descending: true)
+      .limit(30)
+      .snapshots(includeMetadataChanges: true);
+
   Future<HouseSummary?> houseSummary(String code) async {
+    final s = await _house(code).get();
+    if (!s.exists) return null;
+    final h = Household.fromDoc(s.id, s.data()!);
+    int? count;
     try {
-      final s = await _house(code).get();
-      if (!s.exists) return null;
-      final h = Household.fromDoc(s.id, s.data()!);
-      int? count;
-      try {
-        count = (await _txs(code).count().get()).count;
-      } catch (_) {}
-      return HouseSummary(
-        code: code,
-        name: h.name,
-        members: h.members.map((m) => m.name).toList(),
-        txCount: count,
-      );
-    } catch (_) {
-      return null;
-    }
+      count = (await _txs(code).count().get()).count;
+    } catch (_) {}
+    return HouseSummary(
+      code: code,
+      name: h.name,
+      members: h.members.map((m) => m.name).toList(),
+      txCount: count,
+    );
   }
 
   String newCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     final random = Random.secure();
-    return 'STOCO-${List.generate(6, (_) => chars[random.nextInt(chars.length)]).join()}';
+    return 'FAM-${List.generate(6, (_) => chars[random.nextInt(chars.length)]).join()}';
   }
 
   Future<void> createHouse(Household h) => _house(h.code).set(h.toMap());
@@ -71,6 +73,19 @@ class FirestoreService {
       _fixed(code).doc(fixed.id).set(fixed.toMap());
 
   Future<void> deleteFixed(String code, String id) => _fixed(code).doc(id).delete();
+
+  Future<void> addNotification({
+    required String code,
+    required String title,
+    required String message,
+    required String authorUid,
+  }) =>
+      _notifications(code).add({
+        'title': title,
+        'message': message,
+        'authorUid': authorUid,
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+      });
 
   String newId(String code, String subcollection) =>
       _house(code).collection(subcollection).doc().id;

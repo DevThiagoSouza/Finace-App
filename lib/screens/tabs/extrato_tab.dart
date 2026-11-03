@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../state/app_state.dart';
+import '../../services/extrato_pdf_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/tx_tile.dart';
 
@@ -16,11 +17,53 @@ class ExtratoTab extends StatefulWidget {
 
 class _ExtratoTabState extends State<ExtratoTab> {
   final _search = TextEditingController();
+  DateTimeRange? _exportRange;
+  bool _exporting = false;
 
   @override
   void dispose() {
     _search.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportPdf(AppState s) async {
+    final now = s.month;
+    final selected = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDateRange: _exportRange ??
+          DateTimeRange(
+            start: DateTime(now.year, now.month),
+            end: DateTime(now.year, now.month + 1, 0),
+          ),
+      locale: const Locale('pt', 'BR'),
+    );
+    if (selected == null || !mounted) return;
+    setState(() {
+      _exportRange = selected;
+      _exporting = true;
+    });
+    final start = DateTime(selected.start.year, selected.start.month, selected.start.day);
+    final end = DateTime(selected.end.year, selected.end.month, selected.end.day);
+    final transactions = s.txs.where((t) {
+      final date = DateTime.tryParse(t.date);
+      return date != null &&
+          !date.isBefore(start) &&
+          !date.isAfter(end) &&
+          (s.viewMember == 'all' || t.payer == s.viewMember);
+    }).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+    try {
+      await ExtratoPdfService.share(
+        householdName: s.house!.name,
+        start: start,
+        end: end,
+        transactions: transactions,
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
   }
 
   @override
@@ -48,11 +91,24 @@ class _ExtratoTabState extends State<ExtratoTab> {
       children: [
         AppCard(
           padding: const EdgeInsets.all(12),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            arrow(Icons.chevron_left_rounded, -1),
-            Text('${capitalize(monthName(s.month))} ${s.month.year}',
-                style: ts(12, w: FontWeight.w700, c: p.text)),
-            arrow(Icons.chevron_right_rounded, 1),
+          child: Column(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              arrow(Icons.chevron_left_rounded, -1),
+              Text('${capitalize(monthName(s.month))} ${s.month.year}',
+                  style: ts(12, w: FontWeight.w700, c: p.text)),
+              arrow(Icons.chevron_right_rounded, 1),
+            ]),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _exporting ? null : () => _exportPdf(s),
+                icon: _exporting
+                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                label: Text(_exporting ? 'Gerando PDF...' : 'Exportar extrato por período'),
+              ),
+            ),
           ]),
         ),
         const SizedBox(height: 12),

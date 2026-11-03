@@ -73,15 +73,26 @@ lançamentos.
 ```
 households/{CODIGO}                    name, code, members[{name,salary,colorIndex}]
 households/{CODIGO}/fixedExpenses/{id} title, amount, payer
-households/{CODIGO}/transactions/{id}  title, amount, type, category, payer, date, createdAt
+households/{CODIGO}/transactions/{id}  title, amount, type, category, payer, date, createdAt,
+                                      paymentMethod, installmentNumber, installmentTotal, recurringId
 ```
 
 ## Pequenas diferenças em relação ao app web
 - **Mês no Extrato funcional:** as setas ‹ › agora trocam o mês e a Home calcula as
   variáveis do mês selecionado.
-- **Código de casa novo** tem 6 caracteres alfanuméricos (ex.: `STOCO-K7M2QX`) em vez de
+- **Código de casa novo** tem prefixo genérico e 6 caracteres alfanuméricos (ex.: `FAM-K7M2QX`) em vez de
   4 números, porque 4 dígitos seriam fáceis de adivinhar num backend real.
 - "Criar / Conectar a Novo Código" agora permite **criar** *ou* **conectar** a um código existente.
+- Ao criar uma casa, o código é confirmado no Firebase e pode ser copiado para conectar outro celular.
+- Compras no cartão podem ser parceladas; cada parcela é gravada no mês correspondente do extrato.
+- Salários/rendas cadastrados geram lançamentos de renda fixa para o mês atual e os próximos 11 meses.
+- Lançamentos, despesas fixas e rendas fixas permitem informar Débito, Pix, Crédito ou Dinheiro.
+- No Crédito, é possível escolher à vista ou parcelado; parcelas futuras preservam o dia escolhido,
+  ajustando automaticamente para o último dia do mês quando necessário.
+- O extrato pode ser gerado em PDF e compartilhado pelo menu do celular; no Android, o menu também
+  permite salvar o arquivo em uma pasta ou aplicativo.
+- Alterações de entradas, saídas, rendas, despesas fixas e pessoas geram avisos sincronizados para
+  os aparelhos conectados à mesma casa enquanto o app está aberto.
 - Excluir lançamento/fixa: a lixeira fica sempre visível (no celular não existe *hover*).
 - Tema claro com fundo claro (no web o fundo ficava escuro mesmo no modo claro).
 - Mantido igual ao web: lançamentos do tipo **Entrada** aparecem na lista mas **não entram**

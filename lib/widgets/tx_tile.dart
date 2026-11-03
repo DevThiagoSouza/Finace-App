@@ -49,7 +49,10 @@ class TxTile extends StatelessWidget {
             ]),
             const SizedBox(height: 3),
             if (compact)
-              Text('${tx.payer} • ${tx.category} • ${formatFullDate(tx.date)}',
+              Text(
+                  '${tx.payer} • ${tx.category}'
+                  '${tx.installmentTotal > 1 ? ' • Parcela ${tx.installmentNumber}/${tx.installmentTotal}' : ''}'
+                  ' • ${formatFullDate(tx.date)}',
                   maxLines: 1, overflow: TextOverflow.ellipsis,
                   style: ts(10, c: p.muted))
             else

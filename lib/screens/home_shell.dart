@@ -82,7 +82,12 @@ class _Header extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Stoco Family', style: ts(16, w: FontWeight.w800, c: p.strong, ls: -.3, h: 1)),
+            Text(
+              s.house!.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: ts(16, w: FontWeight.w800, c: p.strong, ls: -.3, h: 1),
+            ),
             const SizedBox(height: 3),
             Text.rich(TextSpan(style: ts(11, c: p.muted), children: [
               const TextSpan(text: 'Celular de: '),
